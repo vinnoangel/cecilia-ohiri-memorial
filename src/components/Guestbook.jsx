@@ -1,6 +1,6 @@
 import { FieldLabel, SectionHeading } from './MemorialUI';
 
-export default function Guestbook({memorial, messages, form, error, success, handleChange, handleSubmit, formatTimestamp}) {
+export default function Guestbook({ memorial, messages, loading, submitting, form, error, success, handleChange, handleSubmit, formatTimestamp }) {
   return (
       <section
         id="guestbook"
@@ -117,16 +117,16 @@ export default function Guestbook({memorial, messages, form, error, success, han
                     role="status"
                     className="mt-4 rounded-xl bg-[#fff1b8] px-4 py-3 text-sm text-[#7f1118]"
                   >
-                    Your tribute has been added to the guestbook. Thank you
-                    for sharing your memory.
+                    Thank you for sharing your memory. Your tribute has been submitted for review.
                   </p>
                 )}
 
                 <button
                   type="submit"
-                  className="mt-6 flex min-h-12 w-full items-center justify-center gap-3 rounded-full bg-[#a71920] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#7f1118] focus:outline-none focus:ring-2 focus:ring-[#a71920] focus:ring-offset-2"
+                  disabled={submitting}
+                  className="mt-6 flex min-h-12 w-full items-center justify-center gap-3 rounded-full bg-[#a71920] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#7f1118] focus:outline-none focus:ring-2 focus:ring-[#a71920] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  Share Your Tribute
+                  {submitting ? "Submitting..." : "Share Your Tribute"}
                   <span aria-hidden="true">♡</span>
                 </button>
 
@@ -156,7 +156,11 @@ export default function Guestbook({memorial, messages, form, error, success, han
               </div>
 
               <div className="space-y-5" aria-live="polite">
-                {messages.length === 0 ? (
+                {loading ? (
+                  <p className="rounded-2xl border border-[#eadcae] bg-[#fffdf5] px-6 py-10 text-center text-sm text-slate-500">
+                    Loading tributes...
+                  </p>
+                ) : messages.length === 0 ? (
                   <div className="rounded-2xl border border-dashed border-[#dcd7cb] px-6 py-14 text-center">
                     <span
                       aria-hidden="true"

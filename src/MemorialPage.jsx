@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Ornament } from "./components/MemorialUI";
 import MemorialHeader from "./components/MemorialHeader";
 import MemorialHero from "./components/MemorialHero";
@@ -7,6 +7,8 @@ import FuneralService from "./components/FuneralService";
 import Guestbook from "./components/Guestbook";
 import ClosingTribute from "./components/ClosingTribute";
 import MemorialFooter from "./components/MemorialFooter";
+
+import { supabase } from "./lib/supabaseClient";
 
 const memorial = {
   name: "Cecilia Obiageri Nkemka Ohiri",
@@ -40,61 +42,44 @@ const memorial = {
   ],
 };
 
-const initialMessages = [
-  {
-    id: 1,
-    name: "Sarah Williams",
-    relationship: "Family friend",
-    message:
-      "Mama Cecilia was such a beautiful soul. Her kindness and warmth will never be forgotten. May her family find strength and comfort in the wonderful memories she leaves behind.",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
-  },
-  {
-    id: 2,
-    name: "Michael Thompson",
-    relationship: "Family friend",
-    message:
-      "A truly remarkable woman who made everyone feel welcome. Her legacy of love will continue through everyone fortunate enough to have known her. Rest peacefully, Mama Cecilia.",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
-  },
-  {
-    id: 3,
-    name: "Michael Thompson",
-    relationship: "Family friend",
-    message:
-      "A truly remarkable woman who made everyone feel welcome. Her legacy of love will continue through everyone fortunate enough to have known her. Rest peacefully, Mama Cecilia.",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
-  },
-  {
-    id: 4,
-    name: "Michael Thompson",
-    relationship: "Family friend",
-    message:
-      "A truly remarkable woman who made everyone feel welcome. Her legacy of love will continue through everyone fortunate enough to have known her. Rest peacefully, Mama Cecilia.",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
-  },
-  {
-    id: 5,
-    name: "Michael Thompson",
-    relationship: "Family friend",
-    message:
-      "A truly remarkable woman who made everyone feel welcome. Her legacy of love will continue through everyone fortunate enough to have known her. Rest peacefully, Mama Cecilia.",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
-  },
-];
-
 export default function MemorialPage() {
-  const [messages, setMessages] = useState(initialMessages);
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    async function loadTributes() {
+        const { data, error } = await supabase
+        .from("tributes")
+        .select("id, name, relationship, message, created_at")
+        .eq("is_approved", true)
+        .order("created_at", { ascending: false });
+
+        if (error) {
+        console.error("Failed to load tributes:", error);
+        setError("Unable to load tributes. Please try again later.");
+        } else {
+        setMessages(
+            data.map((item) => ({
+            ...item,
+            timestamp: item.created_at,
+            }))
+        );
+        }
+
+        setLoading(false);
+    }
+
+    loadTributes();
+  }, []);
 
   const [form, setForm] = useState({
     name: "",
     relationship: "",
     message: "",
   });
-
-  const [error, setError] = useState("");
-
-  const [success, setSuccess] = useState(false);
 
   function handleChange(event) {
     const { name, value } = event.target;
@@ -108,27 +93,60 @@ export default function MemorialPage() {
     setSuccess(false);
   }
 
-  function handleSubmit(event) {
-    event.preventDefault();
 
-    const name = form.name.trim();
-    const relationship = form.relationship.trim();
-    const message = form.message.trim();
+async function handleSubmit(event) {
+  event.preventDefault();
 
-    if (!name || !relationship || !message) {
-      setError("Please complete all fields before sharing your message.");
+  if (submitting) {
+    return;
+  }
+
+  setError("");
+  setSuccess(false);
+
+  const name = form.name.trim();
+  const relationship = form.relationship.trim();
+  const message = form.message.trim();
+
+  if (!name || !relationship || !message) {
+    setError("Please complete all fields.");
+    return;
+  }
+
+  if (
+    name.length > 100 ||
+    relationship.length > 100 ||
+    message.length > 2000
+  ) {
+    setError("Please check the length of your entries.");
+    return;
+  }
+
+  setSubmitting(true);
+
+  try {
+    const { error: insertError } = await supabase
+      .from("tributes")
+      .insert({ name, relationship, message });
+
+    if (insertError) {
+      console.error("Error submitting tribute:", insertError);
+      setError(
+        "Your tribute could not be submitted. Please check your connection and try again."
+      );
       return;
     }
 
-    const newMessage = {
-      id: `${Date.now()}-${Math.random()}`,
-      name,
-      relationship,
-      message,
-      timestamp: new Date().toISOString(),
-    };
-
-    setMessages((previous) => [newMessage, ...previous]);
+    setMessages((previous) => [
+      {
+        id: `local-${Date.now()}`,
+        name,
+        relationship,
+        message,
+        timestamp: new Date().toISOString(),
+      },
+      ...previous,
+    ]);
 
     setForm({
       name: "",
@@ -136,9 +154,12 @@ export default function MemorialPage() {
       message: "",
     });
 
-    setError("");
     setSuccess(true);
+  } finally {
+    setSubmitting(false);
   }
+}
+
 
   function formatTimestamp(timestamp) {
     return new Intl.DateTimeFormat("en-GB", {
@@ -157,7 +178,7 @@ export default function MemorialPage() {
       <div className="px-5 py-5"><Ornament /></div>
       <LifeTribute memorial={memorial} />
       <FuneralService memorial={memorial} />
-      <Guestbook memorial={memorial} messages={messages} form={form} error={error} success={success} handleChange={handleChange} handleSubmit={handleSubmit} formatTimestamp={formatTimestamp} />
+      <Guestbook memorial={memorial} messages={messages} loading={loading} submitting={submitting} form={form} error={error} success={success} handleChange={handleChange} handleSubmit={handleSubmit} formatTimestamp={formatTimestamp} />
       <ClosingTribute memorial={memorial} />
       <MemorialFooter memorial={memorial} />
     </main>
