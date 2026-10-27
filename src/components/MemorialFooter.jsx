@@ -6,9 +6,20 @@ export default function MemorialFooter({memorial}) {
             {memorial.name}
           </p>
 
-          <p className="text-xs leading-5 text-slate-500">
-            Created with love, in honour of a life that made a difference.
-          </p>
+          <div className="text-center text-xs leading-5 text-slate-500 sm:text-left">
+            <p>Created with love, in honour of a life that made a difference.</p>
+            <p className="mt-2 text-sm font-semibold uppercase tracking-[0.12em] text-[#3a2522]">
+              Website powered by{" "}
+              <a
+                href="https://redjic.com/"
+                target="_blank"
+                rel="noreferrer"
+                className="font-bold text-[#a71920] underline decoration-2 underline-offset-4 transition hover:text-[#7f1118]"
+              >
+                Redjic Limited
+              </a>
+            </p>
+          </div>
 
           <a
             href="#home"
