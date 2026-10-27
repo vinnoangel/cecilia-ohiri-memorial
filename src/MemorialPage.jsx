@@ -10,6 +10,49 @@ import MemorialFooter from "./components/MemorialFooter";
 
 import { supabase } from "./lib/supabaseClient";
 
+const SUBMISSION_COOLDOWN_MS = 60 * 60 * 1000;
+const SUBMISSION_COOLDOWN_KEY = "cecilia-memorial:last-tribute-submission";
+
+function getSubmissionCooldownRemaining() {
+  try {
+    const timestamp = Number(
+      window.localStorage.getItem(SUBMISSION_COOLDOWN_KEY)
+    );
+
+    if (!Number.isFinite(timestamp)) {
+      return 0;
+    }
+
+    const remaining = SUBMISSION_COOLDOWN_MS - (Date.now() - timestamp);
+
+    if (remaining <= 0) {
+      window.localStorage.removeItem(SUBMISSION_COOLDOWN_KEY);
+      return 0;
+    }
+
+    return remaining;
+  } catch (storageError) {
+    console.warn("Unable to read submission cooldown:", storageError);
+    return 0;
+  }
+}
+
+function recordSubmissionTime() {
+  try {
+    window.localStorage.setItem(
+      SUBMISSION_COOLDOWN_KEY,
+      String(Date.now())
+    );
+  } catch (storageError) {
+    console.warn("Unable to record submission cooldown:", storageError);
+  }
+}
+
+function formatCooldown(remaining) {
+  const minutes = Math.ceil(remaining / (60 * 1000));
+  return `${minutes} minute${minutes === 1 ? "" : "s"}`;
+}
+
 const memorial = {
   name: "Cecilia Obiageri Nkemka Ohiri",
   birthDate: "1948",
@@ -105,6 +148,17 @@ export default function MemorialPage() {
       return;
     }
 
+    const cooldownRemaining = getSubmissionCooldownRemaining();
+
+    if (cooldownRemaining > 0) {
+      setError(
+        `Only one tribute can be submitted from this device per hour. Please try again in ${formatCooldown(
+          cooldownRemaining
+        )}.`
+      );
+      return;
+    }
+
     setError("");
     setSuccess(false);
 
@@ -193,6 +247,7 @@ export default function MemorialPage() {
         return;
       }
 
+      recordSubmissionTime();
       setForm({ name: "", relationship: "", message: "" });
       setSuccess(true);
     } finally {
