@@ -42,6 +42,10 @@ const memorial = {
   ],
 };
 
+function normalizeDuplicateValue(value) {
+  return value.trim().replace(/\s+/g, " ").toLocaleLowerCase();
+}
+
 export default function MemorialPage() {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -94,71 +98,107 @@ export default function MemorialPage() {
   }
 
 
-async function handleSubmit(event) {
-  event.preventDefault();
+  async function handleSubmit(event) {
+    event.preventDefault();
 
-  if (submitting) {
-    return;
-  }
+    if (submitting) {
+      return;
+    }
 
-  setError("");
-  setSuccess(false);
+    setError("");
+    setSuccess(false);
 
-  const name = form.name.trim();
-  const relationship = form.relationship.trim();
-  const message = form.message.trim();
+    const name = form.name.trim();
+    const relationship = form.relationship.trim();
+    const message = form.message.trim();
 
-  if (!name || !relationship || !message) {
-    setError("Please complete all fields.");
-    return;
-  }
+    if (!name || !relationship || !message) {
+      setError("Please complete all fields.");
+      return;
+    }
 
-  if (
-    name.length > 100 ||
-    relationship.length > 100 ||
-    message.length > 2000
-  ) {
-    setError("Please check the length of your entries.");
-    return;
-  }
+    if (
+      name.length > 100 ||
+      relationship.length > 100 ||
+      message.length > 2000
+    ) {
+      setError("Please check the length of your entries.");
+      return;
+    }
 
-  setSubmitting(true);
+    const normalizedName = normalizeDuplicateValue(name);
+    const normalizedRelationship = normalizeDuplicateValue(relationship);
+    const localDuplicate = messages.some(
+      (item) =>
+        normalizeDuplicateValue(item.name) === normalizedName &&
+        normalizeDuplicateValue(item.relationship) === normalizedRelationship
+    );
 
-  try {
-    const { error: insertError } = await supabase
-      .from("tributes")
-      .insert({ name, relationship, message });
-
-    if (insertError) {
-      console.error("Error submitting tribute:", insertError);
+    if (localDuplicate) {
       setError(
-        "Your tribute could not be submitted. Please check your connection and try again."
+        "A tribute from this name and relationship has already been submitted."
       );
       return;
     }
 
-    // setMessages((previous) => [
-    //   {
-    //     id: `local-${Date.now()}`,
-    //     name,
-    //     relationship,
-    //     message,
-    //     timestamp: new Date().toISOString(),
-    //   },
-    //   ...previous,
-    // ]);
+    setSubmitting(true);
 
-    setForm({
-      name: "",
-      relationship: "",
-      message: "",
-    });
+    try {
+      const { data: isDuplicate, error: duplicateCheckError } =
+        await supabase.rpc("tribute_exists_for_identity", {
+          p_name: name,
+          p_relationship: relationship,
+        });
 
-    setSuccess(true);
-  } finally {
-    setSubmitting(false);
+      if (duplicateCheckError) {
+        console.error(
+          "Unable to check for duplicate tribute:",
+          duplicateCheckError
+        );
+        setError("We could not verify your tribute. Please try again.");
+        return;
+      }
+
+      if (isDuplicate === true) {
+        setError(
+          "A tribute from this name and relationship has already been submitted."
+        );
+        return;
+      }
+
+      const { error: insertError } = await supabase
+        .from("tributes")
+        .insert({ name, relationship, message });
+
+      if (insertError) {
+        console.error("Error submitting tribute:", insertError);
+
+        if (insertError.code === "23505") {
+          setError(
+            "A tribute from this name and relationship has already been submitted."
+          );
+          return;
+        }
+
+        if (insertError.code === "23514") {
+          setError(
+            "A tribute from this name and relationship has already been submitted."
+          );
+          return;
+        }
+
+        setError(
+          "Your tribute could not be submitted. Please check your connection and try again."
+        );
+        return;
+      }
+
+      setForm({ name: "", relationship: "", message: "" });
+      setSuccess(true);
+    } finally {
+      setSubmitting(false);
+    }
   }
-}
 
 
   function formatTimestamp(timestamp) {
