@@ -55,18 +55,32 @@ function formatCooldown(remaining) {
 
 const memorial = {
   name: "Cecilia Obiageri Nkemka Ohiri",
-  birthDate: "1948",
+  birthDate: "11 December 1948",
   passingDate: "3 July 2026",
   portrait: "/cecilia-obiageri-nkemka-ohiri.jpeg",
 
   obituary: [
-    "With gratitude to God Almighty for a life well spent, the entire Ohiri family of Umuaku Ogbaku in Mbaitoli L.G.A., Imo State, announces the glorious demise of their beloved wife, mother, grandmother, sister, and aunty, Late Mrs. Cecilia Obiageri Nkemka Ohiri (nee Ukaegbu).",
+    "There is no age in the life of man at which death is welcomed. Even as our mother lies here at the ripe age of a septuagenarian, we still accuse death of being callously wicked. Such is man's emotion in the event of death.",
 
-    "Cecilia passed away on the 3rd of July, 2026, at Umezurike Hospital after a brief illness. Her life was a blessing to her family, and her memory will remain a source of comfort and gratitude to all who knew and loved her.",
+    "Mama was born on 11 December 1948 into the family of Late Mr. and Mrs. Lazarus Ukaegbu of Umuaku Ogbaku in Mbaitoli L.G.A., Imo State. She was the second daughter of her parents.",
 
-    "She is survived by her children, grandchildren, brothers, sisters, in-laws, and a host of other relatives, who mourn her passing and celebrate the life she shared with them.",
+    "She attended Central School Ogbaku in the early 1960s. Unfortunately, she could not complete her elementary education due to financial constraints. She later apprenticed herself to the late Mr. James Nzurumike of Amakaohia Ubi in Owerri West L.G.A., one of the renowned tailors of the late 1960s, to learn tailoring.",
 
-    "May her soul rest in perfect peace. Amen.",
+    "After completing her apprenticeship, Mama opened her own tailoring shop in Ogbaku in the 1970s. With the support of her parents, she built the business from scratch. Her tailoring business became a force to be reckoned with, trained several apprentices, and served as a major source of livelihood for the family.",
+
+    "Mama married her heart-throb, the late Mr. Alphonsus Nkemka Ohiri, on 31 August 1980 at St. Kevin's Catholic Church Ogbaku. The marriage was solemnised by Rev. Father Augustine Amanze and was blessed with four responsible children. Before her marriage, she was the leader of the revered Mary League Girls' Association of St. Kevin's Catholic Church Ogbaku.",
+
+    "After her wedding, she relocated to Bauchi State with her husband, where she engaged in the foodstuff business. She remained a fulfilled and active Christian from her youth and was an ardent member of Deeper Life Bible Church. Until illness limited her mobility in March 2025, she actively participated in church activities and remained a convinced follower of Christ in her words and actions.",
+
+    "In 2012, Mama was diagnosed with chronic diabetes and hypertension. These illnesses led to her involuntary retirement from trading in 2014. Her late husband and children managed her condition through regulated diets and routine medication. In March 2025, she suffered a partial stroke which her children swiftly attended to. She had a relapse in June 2026.",
+
+    "Sadly, Late Mrs. Cecilia Nkemka Ohiri bowed to death and waved goodbye to the hullabaloo of this life at Umezurike Hospital, Owerri, at about 5:20 PM on Friday, 3 July 2026.",
+
+    "She is survived by Mr. Kelechi Donald Nkemka Ohiri (KC Best), her first son; Mr. Geoffrey Chimeremeze Ohiri (Daddy Geo), her second son; Pastor Stanley Sunday Ohiri (SSG/Sir White), her third son; and Mr. Vincent Uche Ohiri (Vinnoangel), her last born.",
+
+    "She is also survived by Mrs. Jacinta Chinenye Ohiri, Mrs. Onyinyechi Calista Ohiri, Mrs. Patience Vincent, and Mrs. Rebecca Tsado Ohiri (Becky), her daughters-in-law; ten grandchildren; one uterine sister; three stepsisters; two stepbrothers; and a host of nephews, nieces, cousins, and other relatives.",
+
+    "As we end this biography in tears, we pray that the Almighty God grants Mama eternal rest until the resurrection morning when we shall meet to part no more. Rest in peace, dear mother. Adieu, Septuagenarian. Farewell, loving and caring mother. Laa N'udo Ada Ukaee.",
   ],
 
   funeral: {

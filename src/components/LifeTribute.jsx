@@ -9,8 +9,8 @@ export default function LifeTribute({memorial}) {
         <div className="mx-auto max-w-4xl">
           <SectionHeading
             eyebrow="Her story · Her legacy"
-            title="A Life Well Spent"
-            description="With gratitude to God Almighty, we celebrate the life and legacy of a beloved wife, mother, grandmother, sister, and aunty."
+            title="A Life of Faith, Work, and Love"
+            description="From her early years in Ogbaku to her tailoring business, family life, Christian faith, and enduring legacy, we remember a life of purpose and devotion."
           />
 
           <article className="relative rounded-2xl border border-[#eadcae] bg-[#fffdf5] px-6 py-9 shadow-[0_12px_45px_rgba(127,17,24,0.05)] sm:px-12 sm:py-14 md:px-16">
@@ -41,19 +41,19 @@ export default function LifeTribute({memorial}) {
               {
                 title: "Her Kindness",
                 description:
-                  "A gentle heart that made everyone feel seen and loved.",
+                  "A loving mother and grandmother whose care reached her family and community.",
                 symbol: "♡",
               },
               {
                 title: "Her Wisdom",
                 description:
-                  "Words of comfort and lessons that will guide generations.",
+                  "A resourceful woman who built a tailoring business and provided for her family.",
                 symbol: "✳",
               },
               {
                 title: "Her Legacy",
                 description:
-                  "A beautiful life whose love continues to live in us.",
+                  "A life of Christian faith, family devotion, hard work, and lasting influence.",
                 symbol: "∞",
               },
             ].map((item) => (
