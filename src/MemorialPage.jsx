@@ -137,16 +137,16 @@ async function handleSubmit(event) {
       return;
     }
 
-    setMessages((previous) => [
-      {
-        id: `local-${Date.now()}`,
-        name,
-        relationship,
-        message,
-        timestamp: new Date().toISOString(),
-      },
-      ...previous,
-    ]);
+    // setMessages((previous) => [
+    //   {
+    //     id: `local-${Date.now()}`,
+    //     name,
+    //     relationship,
+    //     message,
+    //     timestamp: new Date().toISOString(),
+    //   },
+    //   ...previous,
+    // ]);
 
     setForm({
       name: "",
