@@ -236,7 +236,13 @@ export default function MemorialPage() {
 
       const { error: insertError } = await supabase
         .from("tributes")
-        .insert({ name, relationship, message });
+        .insert({
+          name,
+          relationship,
+          message,
+          is_approved: false,
+          moderation_status: "pending",
+        });
 
       if (insertError) {
         console.error("Error submitting tribute:", insertError);
