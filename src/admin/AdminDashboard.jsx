@@ -25,6 +25,10 @@ export default function AdminDashboard({ user }) {
   const [workingId, setWorkingId] = useState("");
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
+  const [realtimeStatus, setRealtimeStatus] = useState("CONNECTING");
+  const [notificationPermission, setNotificationPermission] = useState(
+    () => ("Notification" in window ? Notification.permission : "unsupported")
+  );
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -56,10 +60,102 @@ export default function AdminDashboard({ user }) {
     setLoading(false);
   }, []);
 
+  async function enableDesktopNotifications() {
+  if (!("Notification" in window)) {
+    setNotice("Desktop notifications are not supported by this browser.");
+    return;
+  }
+
+  const permission = await Notification.requestPermission();
+
+    setNotificationPermission(permission);
+
+    if (permission === "granted") {
+      setNotice("Desktop notifications enabled.");
+    } else {
+      setNotice(
+        "Notifications are blocked. Enable them in your browser's site settings."
+      );
+    }
+  }
+
   useEffect(() => {
     const timer = window.setTimeout(loadData, 0);
     return () => window.clearTimeout(timer);
   }, [loadData]);
+
+  
+  useEffect(() => {
+    const channel = supabase
+      .channel("admin-tributes-live")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "tributes",
+        },
+        (payload) => {
+          // Notify the administrator only for new pending tributes.
+          if (payload.eventType === "INSERT") {
+            const tribute = payload.new;
+
+            const status =
+              tribute.moderation_status ||
+              (tribute.is_approved ? "approved" : "pending");
+
+            if (status === "pending") {
+              const message =
+                `New tribute from ${tribute.name || "a visitor"} is awaiting review.`;
+
+              setNotice(message);
+
+              if (
+                "Notification" in window &&
+                Notification.permission === "granted"
+              ) {
+                try {
+                  const notification = new Notification(
+                    "New memorial tribute",
+                    {
+                      body: message,
+                      tag: `tribute-${tribute.id}`,
+                      icon: "/favicon.ico",
+                    }
+                  );
+
+                  notification.onclick = () => {
+                    window.focus();
+                    selectView("pending");
+                    notification.close();
+                  };
+                } catch (notificationError) {
+                  console.error(
+                    "Unable to display desktop notification:",
+                    notificationError
+                  );
+                }
+              }
+            }
+          }
+
+          // Reuse the existing data loader to refresh lists and statistics.
+          void loadData();
+        }
+      )
+      .subscribe((status) => {
+        setRealtimeStatus(status);
+
+        if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+          console.error("Supabase Realtime connection issue:", status);
+        }
+      });
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [loadData]);
+
 
   async function updateStatus(tribute, nextStatus) {
     if (!window.confirm(`${nextStatus === "approved" ? "Publish" : "Reject"} this tribute?`)) {
@@ -126,6 +222,32 @@ export default function AdminDashboard({ user }) {
           </div>
           <div className="flex items-center gap-4">
             <span className="hidden text-sm text-slate-500 sm:block">{user.email}</span>
+            <button
+              type="button"
+              onClick={enableDesktopNotifications}
+              disabled={notificationPermission === "granted"}
+              className="rounded-full border border-[#d4a51b] px-4 py-2 text-sm text-[#7f1118] hover:bg-[#fff1b8] disabled:cursor-default disabled:opacity-60"
+            >
+              {notificationPermission === "granted"
+                ? "Notifications enabled"
+                : notificationPermission === "denied"
+                  ? "Enable in browser settings"
+                  : "Enable notifications"}
+            </button>
+            <span
+              role="status"
+              className={`hidden rounded-full px-3 py-1 text-xs font-medium sm:inline-block ${
+                realtimeStatus === "SUBSCRIBED"
+                  ? "bg-green-100 text-green-800"
+                  : "bg-amber-100 text-amber-800"
+              }`}
+            >
+              {realtimeStatus === "SUBSCRIBED"
+                ? "Live updates connected"
+                : realtimeStatus === "CONNECTING"
+                  ? "Connecting..."
+                  : "Live updates unavailable"}
+            </span>
             <button onClick={signOut} className="rounded-full border border-[#d4a51b] px-4 py-2 text-sm text-[#7f1118] hover:bg-[#fff1b8]">Sign out</button>
           </div>
         </div>

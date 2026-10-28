@@ -115,29 +115,59 @@ export default function MemorialPage() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    async function loadTributes() {
-        const { data, error } = await supabase
+    let active = true;
+
+    async function loadTributes(showLoading = true) {
+      if (showLoading) {
+        setLoading(true);
+      }
+
+      const { data, error } = await supabase
         .from("tributes")
         .select("id, name, relationship, message, created_at")
         .eq("is_approved", true)
         .order("created_at", { ascending: false });
 
-        if (error) {
+      if (!active) {
+        return;
+      }
+
+      if (error) {
         console.error("Failed to load tributes:", error);
         setError("Unable to load tributes. Please try again later.");
-        } else {
+      } else {
         setMessages(
-            data.map((item) => ({
+          data.map((item) => ({
             ...item,
             timestamp: item.created_at,
-            }))
+          }))
         );
-        }
+      }
 
-        setLoading(false);
+      setLoading(false);
     }
 
     loadTributes();
+
+    const channel = supabase
+      .channel("public-tributes-feed")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "tributes" },
+        () => {
+          loadTributes(false);
+        }
+      )
+      .subscribe((status) => {
+        if (status === "CHANNEL_ERROR") {
+          console.error("Unable to subscribe to tribute updates.");
+        }
+      });
+
+    return () => {
+      active = false;
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const [form, setForm] = useState({
