@@ -135,6 +135,34 @@ export default function FuneralService({memorial}) {
                   Please keep the Ohiri family in your prayers during this
                   time of remembrance.
                 </p>
+
+                <div className="mt-6 rounded-2xl border border-[#eadcae] bg-[#fffaf0] p-5 text-center">
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#a71920]">
+                    Live streaming
+                  </p>
+
+                  {memorial.funeral.streamingUrl ? (
+                    <>
+                      <p className="mt-2 text-sm leading-6 text-slate-600">
+                        Join the service online now.
+                      </p>
+                      <a
+                        href={memorial.funeral.streamingUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#a71920] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#7f1118] focus:outline-none focus:ring-2 focus:ring-[#a71920] focus:ring-offset-2"
+                      >
+                        Watch the live stream
+                        <span aria-hidden="true">↗</span>
+                      </a>
+                    </>
+                  ) : (
+                    <p className="mt-2 text-sm leading-6 text-slate-600">
+                      The streaming link will be shared here when the service
+                      begins.
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
 

@@ -90,6 +90,7 @@ const memorial = {
     address:
       "Along Impressive Road, Ogbaku, Mbaitoli L.G.A., Imo State",
     notice: "/863250462_1673578877431771_7636838536071350629_n.jpg",
+    streamingUrl: "",
   },
 
   instructions: [
@@ -97,7 +98,7 @@ const memorial = {
     "Thursday 29 October, 8:00 AM: Body leaves Ossai Mortuary along Onitsha Express Road for her hometown, Umuaku Ogbaku.",
     "Thursday 29 October, 11:00 AM: Church service at her husband's compound; interment follows immediately after the requiem service.",
   ],
-};
+}
 
 function normalizeDuplicateValue(value) {
   return value.trim().replace(/\s+/g, " ").toLocaleLowerCase();
