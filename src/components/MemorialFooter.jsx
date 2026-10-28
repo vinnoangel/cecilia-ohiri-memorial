@@ -1,4 +1,4 @@
-export default function MemorialFooter({memorial}) {
+export default function MemorialFooter() {
   return (
       <footer className="bg-[#fffaf0] px-5 py-8 sm:px-8">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 text-center sm:flex-row sm:text-left">
