@@ -106,6 +106,9 @@ function normalizeDuplicateValue(value) {
 
 export default function MemorialPage() {
   const [messages, setMessages] = useState([]);
+  const [showStreamingNotice, setShowStreamingNotice] = useState(
+    Boolean(memorial.funeral.streamingUrl)
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -289,6 +292,60 @@ export default function MemorialPage() {
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#fffaf0] font-sans text-[#4a3530]">
+      {showStreamingNotice && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#3a2522]/60 px-5 py-8"
+          role="presentation"
+        >
+          <div
+            aria-labelledby="streaming-notice-title"
+            aria-modal="true"
+            className="relative w-full max-w-md rounded-3xl border border-[#d4a51b] bg-[#fffdf5] p-7 text-center shadow-[0_20px_70px_rgba(58,37,34,0.25)] sm:p-9"
+            role="dialog"
+          >
+            <button
+              type="button"
+              onClick={() => setShowStreamingNotice(false)}
+              aria-label="Close live streaming notice"
+              className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full text-xl text-[#7f1118] transition hover:bg-[#fff1b8] focus:outline-none focus:ring-2 focus:ring-[#a71920]"
+            >
+              ×
+            </button>
+
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#a71920]">
+              Live streaming available
+            </p>
+            <h2
+              id="streaming-notice-title"
+              className="mt-3 font-serif text-3xl text-[#3a2522]"
+            >
+              Join us online
+            </h2>
+            <p className="mt-4 leading-7 text-slate-600">
+              The service is being streamed live. You are welcome to join the
+              family and friends in remembrance.
+            </p>
+            <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:justify-center">
+              <a
+                href={memorial.funeral.streamingUrl}
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => setShowStreamingNotice(false)}
+                className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#a71920] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#7f1118] focus:outline-none focus:ring-2 focus:ring-[#a71920] focus:ring-offset-2"
+              >
+                Watch the live stream ↗
+              </a>
+              <button
+                type="button"
+                onClick={() => setShowStreamingNotice(false)}
+                className="min-h-12 rounded-full border border-[#d4a51b] px-6 py-3 text-sm font-medium text-[#7f1118] transition hover:bg-[#fff1b8] focus:outline-none focus:ring-2 focus:ring-[#a71920] focus:ring-offset-2"
+              >
+                Continue to memorial
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <MemorialHeader memorial={memorial} />
       <MemorialHero memorial={memorial} />
       <div className="px-5 py-5"><Ornament /></div>
