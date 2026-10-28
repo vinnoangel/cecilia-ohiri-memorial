@@ -66,9 +66,10 @@ export default function Guestbook({ memorial, messages, loading, submitting, for
                       <option value="" disabled>
                         Select your relationship
                       </option>
-                      <option value="Daughter">Daughter</option>
                       <option value="Son">Son</option>
+                      <option value="Daughter-in-law">Daughter-in-law</option>
                       <option value="Grandchild">Grandchild</option>
+                      <option value="Daughter">Daughter</option>
                       <option value="Sibling">Sibling</option>
                       <option value="In-law">In-law</option>
                       <option value="Relative">Relative</option>
