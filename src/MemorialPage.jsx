@@ -90,7 +90,7 @@ const memorial = {
     address:
       "Along Impressive Road, Ogbaku, Mbaitoli L.G.A., Imo State",
     notice: "/863250462_1673578877431771_7636838536071350629_n.jpg",
-    streamingUrl: "",
+    streamingUrl: "https://www.youtube.com/live/0V_Bn0lQgG4?si=nYytw8-GW-zDLOIo",
   },
 
   instructions: [
@@ -113,6 +113,25 @@ export default function MemorialPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [notificationPermission, setNotificationPermission] = useState(
+    () => ("Notification" in window ? Notification.permission : "unsupported")
+  );
+
+  async function enableNotifications() {
+    if (!("Notification" in window)) {
+      setError("Browser notifications are not supported on this device.");
+      return;
+    }
+
+    const permission = await Notification.requestPermission();
+    setNotificationPermission(permission);
+
+    if (permission !== "granted") {
+      setError(
+        "Notifications are blocked. Enable them in your browser's site settings."
+      );
+    }
+  }
 
   useEffect(() => {
     let active = true;
@@ -154,7 +173,47 @@ export default function MemorialPage() {
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "tributes" },
-        () => {
+        (payload) => {
+          const approved =
+            payload.eventType === "INSERT"
+              ? payload.new?.is_approved === true &&
+                payload.new?.moderation_status === "approved"
+              : payload.eventType === "UPDATE" &&
+                payload.new?.is_approved === true &&
+                payload.new?.moderation_status === "approved" &&
+                (payload.old?.is_approved !== true ||
+                  payload.old?.moderation_status !== "approved");
+
+          if (
+            approved &&
+            "Notification" in window &&
+            Notification.permission === "granted"
+          ) {
+            try {
+              const notification = new Notification(
+                "New memorial tribute published",
+                {
+                  body: "A new tribute is now available in Cecilia's guestbook.",
+                  tag: `published-tribute-${payload.new.id}`,
+                  icon: "/favicon-now-package/favicon-48x48.png",
+                }
+              );
+
+              notification.onclick = () => {
+                window.focus();
+                document
+                  .getElementById("guestbook")
+                  ?.scrollIntoView({ behavior: "smooth" });
+                notification.close();
+              };
+            } catch (notificationError) {
+              console.error(
+                "Unable to display tribute notification:",
+                notificationError
+              );
+            }
+          }
+
           loadTributes(false);
         }
       )
@@ -381,7 +440,7 @@ export default function MemorialPage() {
       <div className="px-5 py-5"><Ornament /></div>
       <LifeTribute memorial={memorial} />
       <FuneralService memorial={memorial} />
-      <Guestbook memorial={memorial} messages={messages} loading={loading} submitting={submitting} form={form} error={error} success={success} handleChange={handleChange} handleSubmit={handleSubmit} formatTimestamp={formatTimestamp} />
+      <Guestbook memorial={memorial} messages={messages} loading={loading} submitting={submitting} form={form} error={error} success={success} handleChange={handleChange} handleSubmit={handleSubmit} formatTimestamp={formatTimestamp} notificationPermission={notificationPermission} enableNotifications={enableNotifications} />
       <ClosingTribute memorial={memorial} />
       <MemorialFooter memorial={memorial} />
     </main>
