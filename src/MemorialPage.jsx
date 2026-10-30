@@ -90,7 +90,7 @@ const memorial = {
     address:
       "Along Impressive Road, Ogbaku, Mbaitoli L.G.A., Imo State",
     notice: "/863250462_1673578877431771_7636838536071350629_n.jpg",
-    streamingUrl: "https://www.youtube.com/live/KJdq8mcUP1M?si=cnw-KvT63XGqXeff",
+    streamingUrl: "",
   },
 
   instructions: [
